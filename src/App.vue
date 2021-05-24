@@ -18,7 +18,6 @@ export default {
 <style>
 html, body {
   background-color:#1e2328;
-}
-#app {
+  font-family: Helvetica;
 }
 </style>

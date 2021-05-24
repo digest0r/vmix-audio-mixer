@@ -66,7 +66,6 @@ export default {
 }
 .audio-input-header {
   display: flex;
-  font-family: Helvetica;
   border-bottom: 1px solid #181818;
 }
 .audio-input-number {

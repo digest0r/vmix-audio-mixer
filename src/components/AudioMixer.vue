@@ -1,6 +1,13 @@
 <template>
   <div class="vmix-audio-mixer">
-    <div class="vmix-audio-mixer__inputs">
+    <div class="vmix-audio-mixer__vmix-url">
+      <label for="vmix-url">vMix URL</label>
+      <input type="text" v-model="vMixUrl" id="vmix-url" />
+      <button
+        @click="setvMixUrl()"
+      >Connect</button>
+    </div>
+    <div v-if="vMixUrlSet" class="vmix-audio-mixer__inputs">
       <AudioInput
         v-for="audioInput in audioInputs"
         :key="audioInput.key"
@@ -21,20 +28,28 @@ export default {
   },
   data() {
     return {
+      vMixUrlSet: false,
+      vMixUrl: "",
       pollingInterval: null,
       currentText: null,
       currentXml: null,
       audioInputs: [],
     };
   },
-  async mounted() {
-    await this.fetchAudioInputs();
-
-    this.startPolling();
-
-    console.log(this.audioInputs);
-  },
   methods: {
+    async setvMixUrl() {
+      if (this.vMixUrlSet) {
+        return;
+      }
+      this.vMixUrlSet = true;
+
+      await this.fetchAudioInputs();
+      this.startPolling();
+
+      console.log(this.audioInputs);
+
+      console.log("vMix URL set");
+    },
     async fetchAudioInputs() {
       const xml = await this.getInputsXml();
 
@@ -44,7 +59,7 @@ export default {
       this.audioInputs = this.parseXml(audioInputXmls);
     },
     async getInputsXml() {
-      const response = await fetch("http://192.168.100.52:8088/API");
+      const response = await fetch(`${this.vMixUrl}/API`);
       const text = await response.text();
       if (text === this.currentText) return this.currentXml;
 
@@ -62,7 +77,7 @@ export default {
     },
     async setVolume(volume, inputKey) {
       console.log("CHANGE", volume, inputKey);
-      const url = `http://192.168.100.52:8088/API/?Function=SetVolumeFade&Input=${inputKey}&Value=${volume},100`;
+      const url = `${this.vMixUrl}/API/?Function=SetVolumeFade&Input=${inputKey}&Value=${volume},100`;
       console.log(url);
       await fetch(url);
     },
@@ -89,8 +104,17 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.vmix-audio-mixer__vmix-url {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+.vmix-audio-mixer__vmix-url label {
+  color: #d1d1d1;
+  margin-right: 0.5rem;
+}
 .vmix-audio-mixer__inputs {
   display: flex;
   justify-content: center;
